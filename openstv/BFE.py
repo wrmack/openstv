@@ -19,9 +19,9 @@ import os
 import warnings
 import wx.lib.mixins.listctrl as listmix
 
-from openstv.STV import *
-from openstv.ballots import Ballots
-from openstv.utils import getHome
+from STV import *
+from ballots import Ballots
+from utils import getHome
 
 ##################################################################
 
@@ -58,7 +58,7 @@ class BFEFrame(wx.Frame):
     # Edit an existing ballot file
     elif mode == "old":
       dlg = wx.FileDialog(self, "Edit Ballot File",
-                          style=wx.OPEN|wx.CHANGE_DIR)
+                          style=wx.FD_OPEN|wx.FD_CHANGE_DIR)  # WM: added FD_ prefixes
       if dlg.ShowModal() != wx.ID_OK:
         dlg.Destroy()
         self.Destroy()
@@ -70,7 +70,7 @@ class BFEFrame(wx.Frame):
       try:
         self.b = Ballots()
         self.b.loadUnknown(fName)
-      except RuntimeError, msg:
+      except RuntimeError as msg:
         wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
         self.Destroy()
         return
@@ -95,7 +95,7 @@ class BFEFrame(wx.Frame):
     self.logN = 1 # counter for display purposes
     self.log = wx.TextCtrl(nb, -1,
                            style=wx.TE_MULTILINE|wx.TE_READONLY|\
-                           wx.TE_WORDWRAP|wx.FIXED)
+                           wx.TE_WORDWRAP)  # WM: no attribute 'FIXED' so removed
     self.log.SetMaxLength(0)
     nb.AddPage(self.log, "Log")
 
@@ -117,9 +117,9 @@ class BFEFrame(wx.Frame):
     sizer.Fit(self)
     sizer.SetSizeHints(self)
     
-  def catchWarnings(self, message, category, filename, lineno):
+  def catchWarnings(self, message, category, filename, lineno, dummy1, dummy2):
     "Catch any warnings and display them in a dialog box."
-    
+    # WM: added dummy1, dummy2 because exception error: catchWarnings() takes 5 positional arguments but 7 were given
     wx.MessageBox(str(message), "Warning", wx.OK|wx.ICON_INFORMATION)
 
   def Log(self, txt):
@@ -170,7 +170,7 @@ class BFEFrame(wx.Frame):
       oldNumBallots = self.b.numBallots
       self.b.appendFile(fName)
       self.b = self.b.getCleanBallots(removeEmpty=False, removeWithdrawn=False)
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
     else:
       self.Log("Appended %d ballots from file %s." %\
@@ -188,7 +188,7 @@ class BFEFrame(wx.Frame):
 
     try:
       self.b.save()
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
     self.panel.NeedToSaveBallots = False
@@ -197,7 +197,7 @@ class BFEFrame(wx.Frame):
 
     # Ask the user to choose the filename.
     dlg = wx.FileDialog(self, "Save Ballot File",
-                        style=wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+                        style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR) # WM: added FD_ prefixes
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -207,7 +207,7 @@ class BFEFrame(wx.Frame):
     # Save
     try:
       self.b.saveAs(fName)
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
     self.panel.NeedToSaveBallots = False
@@ -225,7 +225,7 @@ class BFEFrame(wx.Frame):
 
     try:
       self.log.SaveFile(self.logfName)
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
 
@@ -233,7 +233,7 @@ class BFEFrame(wx.Frame):
 
   def OnSaveLogAs(self, event):
     dlg = wx.FileDialog(self, "Save Log to a File",
-                        style=wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+                        style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR) # WM: added FD_ prefix
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -242,7 +242,7 @@ class BFEFrame(wx.Frame):
 
     try:
       self.log.SaveFile(self.logfName)
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
 
@@ -357,7 +357,7 @@ class BallotsPanel(wx.Panel):
     numCandidatesC = wx.StaticText(self, -1, "%d" % self.b.numCandidates)
     titleL = wx.StaticText(self, -1, "Title:")
     title = ""
-    if vars(self.b).has_key("title"): 
+    if "title" in vars(self.b): 
       title = self.b.title
     titleC = wx.TextCtrl(self, -1, title)
     self.Bind(wx.EVT_TEXT, self.OnTitle, titleC)
@@ -399,6 +399,7 @@ remove the ranking and reorder the remaining candidates."""
     self.Bind(wx.EVT_BUTTON, self.OnAppend, append)
     self.Bind(wx.EVT_BUTTON, self.OnExit, exitBFE)
 
+    # WM: deprecation warning InsertStringItem
     # Ballot box
     self.ballotBox = wx.StaticBox(self, -1, "Ballot No. %d" % (self.i + 1))
     self.ballotC = BallotCtrl(self, -1)
@@ -408,10 +409,10 @@ remove the ranking and reorder the remaining candidates."""
     for c, name in enumerate(self.b.names):
       if c in self.currentBallot:
         r = self.currentBallot.index(c)
-        self.ballotC.InsertStringItem(c, str(r+1))
+        self.ballotC.InsertItem(c, str(r+1))
       else:
-        self.ballotC.InsertStringItem(c, "")
-      self.ballotC.SetStringItem(c, 1, name)
+        self.ballotC.InsertItem(c, "")
+      self.ballotC.SetItem(c, 1, name)  # WM: deprecation warning re SetStringItem
     self.ballotC.SetColumnWidth(0, wx.LIST_AUTOSIZE_USEHEADER)
     w = self.ballotC.computeColumnWidth()
     self.ballotC.SetColumnWidth(1, w)
@@ -478,7 +479,7 @@ remove the ranking and reorder the remaining candidates."""
     ballotSizer.Add(self.ballotC, 1, wx.EXPAND|wx.ALL, 5)
     # Need this ugly hack since wx.ListCtrl doesn't properly set its size
     w = self.ballotC.GetColumnWidth(0) + self.ballotC.GetColumnWidth(1)\
-        + wx.SystemSettings_GetMetric(wx.SYS_VSCROLL_X) + 5
+        + wx.SystemSettings.GetMetric(wx.SYS_VSCROLL_X) + 5
     ballotSizer.SetItemMinSize(self.ballotC, (w, -1))
 
     sizer.Add(leftSizer, 0, wx.EXPAND, 0)
@@ -529,14 +530,14 @@ remove the ranking and reorder the remaining candidates."""
                           if r != -1 and not isinstance(r, list)]
     
     # Update the list box to show the current ballot
-    for c in xrange(self.b.numCandidates):
+    for c in range(self.b.numCandidates):
       if self.currentBallot.count(c) > 1:
         warnings.warn("Candidate %s appears on ballot %d more than once.  Later rankings ignored." % (self.b.names[c], self.i+1))
       if c in self.currentBallot:
         r = self.currentBallot.index(c)
-        self.ballotC.SetStringItem(c, 0, str(r+1))
+        self.ballotC.SetItem(c, 0, str(r+1))  # WM: changed from SetStringItem
       else:
-        self.ballotC.SetStringItem(c, 0, "")
+        self.ballotC.SetItem(c, 0, "") # WM: Changed from SetStringItem
 
   def OnClear(self, event):
     self.currentBallot = []
@@ -605,7 +606,7 @@ remove the ranking and reorder the remaining candidates."""
     self.UpdatePanel()
 
   def OnListClick(self, event):
-    c = event.m_itemIndex
+    c = event.Index   # WM: changed from m_itemIndex which is for a mouse event
     name = self.b.names[c]
     if c not in self.currentBallot:
       self.currentBallot.append(c)
@@ -622,7 +623,7 @@ remove the ranking and reorder the remaining candidates."""
     self.ballotC.SetItemState(c, 0, wx.LIST_STATE_SELECTED)    
     
   def OnListDClick(self, event):
-    c = event.m_itemIndex
+    c = event.Index  # WM: changed from m_itemIndex
     name = self.b.names[c]
     if c in self.currentBallot:
       self.currentBallot.remove(c)

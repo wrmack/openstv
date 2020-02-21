@@ -17,7 +17,7 @@
 __revision__ = "$Id: DCBallotLoader.py 693 2010-01-03 19:12:05Z jeff.oneill $"
 
 import re
-from openstv.plugins import LoaderPlugin
+from plugins import LoaderPlugin
 
 class DCBallotLoader(LoaderPlugin):
   "Ballot loader class for DemoChoice ballot files."
@@ -59,7 +59,7 @@ class DCBallotLoader(LoaderPlugin):
       self.fName = self.normalizeFileName(fName)
     f = open(self.fName, "w")
     
-    for i in xrange(ballotList.numBallots):
+    for i in range(ballotList.numBallots):
       ballot = ballotList.getBallot(i)
       line = ",".join(ballot)
       f.write(line + "\n")

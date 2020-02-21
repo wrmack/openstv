@@ -14,8 +14,8 @@
 
 __revision__ = "$Id: Borda.py 715 2010-02-27 17:00:55Z jeff.oneill $"
 
-from openstv.STV import NonIterative
-from openstv.plugins import MethodPlugin
+from STV import NonIterative
+from plugins import MethodPlugin
 
 ##################################################################
 
@@ -70,7 +70,7 @@ his or her first choice candidate.</p>
     "Count the votes using the Borda Count."
 
     # Add up the Borda counts
-    for i in xrange(self.b.numWeightedBallots):
+    for i in range(self.b.numWeightedBallots):
       weight, blt = self.b.getWeightedBallot(i)
       # Ranked candidates get their usual Borda score
       for j, c in enumerate(blt):

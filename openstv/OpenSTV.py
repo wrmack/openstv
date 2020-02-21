@@ -19,19 +19,20 @@ import sys
 import warnings
 from time import sleep
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 
 import wx
 import wx.html
 import wx.lib.mixins.listctrl as listmix
+import wx.adv
 
-from openstv.BFE import BFEFrame
-from openstv.ballots import Ballots
-from openstv.ReportPlugins.TextReport import TextReport
-from openstv.ReportPlugins.HtmlReport import HtmlReport
-from openstv.ReportPlugins.CsvReport import CsvReport
-from openstv.plugins import getMethodPlugins
-from openstv.utils import getHome
+from BFE import BFEFrame
+from ballots import Ballots
+from ReportPlugins.TextReport import TextReport
+from ReportPlugins.HtmlReport import HtmlReport
+from ReportPlugins.CsvReport import CsvReport
+from plugins import getMethodPlugins
+from utils import getHome
 
 ##################################################################
 
@@ -178,9 +179,10 @@ class Frame(wx.Frame):
     self.notebook = wx.Notebook(self, -1)
 
     # create a console window
+    # WM: Removed wx.FIXED from style
     self.console = wx.TextCtrl(self.notebook, -1,
                                style=wx.TE_MULTILINE|wx.TE_READONLY|\
-                               wx.TE_WORDWRAP|wx.FIXED|wx.TE_RICH2)
+                               wx.TE_WORDWRAP|wx.TE_RICH2)
     self.console.SetMaxLength(0)
     ps = self.console.GetFont().GetPointSize()
     font = wx.Font(ps, wx.MODERN, wx.NORMAL, wx.NORMAL)
@@ -209,8 +211,9 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
 """
     self.console.AppendText(self.introText)
     
-  def catchWarnings(self, message, category, filename, lineno):
-    "Catch any warnings and display them in a dialog box."
+  def catchWarnings(self, message, category, filename, lineno, dummy1, dummy2):
+    #Catch any warnings and display them in a dialog box.
+    #dummy1, dummy2 added because exception: TypeError: catchWarnings() takes 5 positional arguments but 7 were given
     wx.MessageBox(str(message), "Warning", wx.OK|wx.ICON_INFORMATION)
 
   def MakeMenu(self):
@@ -263,7 +266,8 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
     self.AddMenuItem(subMenu, '12', '12', self.OnFontSize)
     self.AddMenuItem(subMenu, '13', '13', self.OnFontSize)
     self.AddMenuItem(subMenu, '14', '14', self.OnFontSize)
-    OptionsMenu.AppendMenu(wx.NewId(), "Font Size", subMenu)
+    # WM: deprecation warning for AppendMenu - use Append instead
+    OptionsMenu.AppendSubMenu(subMenu, "Font Size")
 
     self.menuBar.Append(OptionsMenu, '&Options')
     
@@ -279,7 +283,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
     # Help about methods
     # mac wxPython doesn't allow submenus in the help menu so need to do it
     # a different way
-    methods = self.methodClasses2.keys()
+    methods = list(self.methodClasses2.keys())
     methods.sort()
     if wx.Platform == "__WXMAC__":
       HelpMenu.AppendSeparator()
@@ -289,7 +293,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
       methodHelpMenu = wx.Menu()
       for m in methods:
         self.AddMenuItem(methodHelpMenu, m, m, self.OnMethodHelp)
-      HelpMenu.AppendMenu(wx.NewId(), "Methods", methodHelpMenu)
+      HelpMenu.AppendMenu(wx.NewIdRef(), "Methods", methodHelpMenu)
 
     # About OpenSTV
     if wx.Platform != "__WXMAC__":
@@ -349,7 +353,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
     # Load ballots from the file.  These are dirty ballots.
     try:
       election.loadBallots()
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
 
@@ -375,7 +379,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
 
     try:
       election.runElection()
-    except RuntimeError, msg:
+    except RuntimeError as msg:
       wx.MessageBox(str(msg), "Error", wx.OK|wx.ICON_ERROR)
       return
       
@@ -539,7 +543,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
 
   def OnFontSize(self, event):
     itemId = event.GetId()
-    fontSize = int(self.menuBar.FindItemById(itemId).GetLabel())
+    fontSize = int(self.menuBar.FindItemById(itemId).GetItemLabelText())  # WM: GetLabel() deprecated
     n = self.notebook.GetSelection()
     font = self.notebook.GetPage(n).GetFont()
     font.SetPointSize(fontSize)
@@ -590,7 +594,7 @@ See the Help menu for more information about the available methods.""")
     self.Bind(wx.EVT_BUTTON, self.OnFilenameSelect, filenameB)
 
     methodL = wx.StaticText(self, -1, "Method:")
-    choices = parent.methodClasses.keys()
+    choices = list(parent.methodClasses.keys())
     choices.sort()
     self.methodC = wx.Choice(self, -1, choices = choices)
     if parent.lastMethod in choices:
@@ -895,8 +899,8 @@ class App(wx.App):
     # Show a splash screen
     png = os.path.join(getHome(), "Icons", "splash.png")
     bmp = wx.Image(png).ConvertToBitmap()
-    wx.SplashScreen(bmp,
-                    wx.SPLASH_CENTRE_ON_SCREEN | wx.SPLASH_TIMEOUT,
+    wx.adv.SplashScreen(bmp,
+                    wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT,
                     5000, None, -1)
 
     self.frame = Frame(None)

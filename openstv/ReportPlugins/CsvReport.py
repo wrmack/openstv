@@ -16,8 +16,8 @@ __revision__ = "$Id: report.py 570 2009-08-20 17:46:56Z jeff.oneill $"
 
 import string
 
-from openstv.version import v as OpenSTV_version
-from openstv.plugins import ReportPlugin
+from version import v as OpenSTV_version
+from plugins import ReportPlugin
 
 ##################################################################
 
@@ -30,7 +30,7 @@ class CsvReport(ReportPlugin):
   def __init__(self, e, outputFile=None, test=False):
     ReportPlugin.__init__(self, e, outputFile, test)
     if self.e.methodName == "Condorcet":
-      raise RuntimeError, "CSV report not available for Condorcet elections."
+      raise RuntimeError("CSV report not available for Condorcet elections.")
     
   def generateHeader(self):
 

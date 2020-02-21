@@ -19,7 +19,7 @@ import os.path
 import textwrap
 import pkgutil
 
-from openstv.utils import getHome
+from utils import getHome
 
 ##################################################################
 
@@ -159,7 +159,7 @@ class LoaderPlugin(object):
     
   def normalizeFileName(self, fName):
     if fName == "": 
-      raise RuntimeError, "No file name given for saving ballots."
+      raise RuntimeError("No file name given for saving ballots.")
     ext = os.path.splitext(fName)[1]
     if ('' == ext):
       fName += "." + self.extensions[0]
@@ -191,7 +191,7 @@ class ReportPlugin(object):
 
   def output(self, output):
     """Stream output to destination file-like object."""
-    print >> self.outputFile, output,
+    print(output, end=' ', file=self.outputFile)
     
   def generateReport(self):
     "Selector for major categories of methods."
@@ -295,16 +295,16 @@ def getPlugins(package, baseClass, format, exclude0):
     assert(0)
 
 def getMethodPlugins(format, exclude0 = True):
-  import openstv.MethodPlugins
-  return getPlugins(openstv.MethodPlugins, MethodPlugin, format, exclude0)
+  import MethodPlugins
+  return getPlugins(MethodPlugins, MethodPlugin, format, exclude0)
   
 def getReportPlugins(format, exclude0 = True):
-  import openstv.ReportPlugins
-  return getPlugins(openstv.ReportPlugins, ReportPlugin, format, exclude0)
+  import ReportPlugins
+  return getPlugins(ReportPlugins, ReportPlugin, format, exclude0)
   
 def getLoaderPlugins(format, exclude0 = True):
-  import openstv.LoaderPlugins
-  return getPlugins(openstv.LoaderPlugins, LoaderPlugin, format, exclude0)
+  import LoaderPlugins
+  return getPlugins(LoaderPlugins, LoaderPlugin, format, exclude0)
 
 def getLoaderPluginClass(extension, exclude0 = True):
   "Return the most appropriate loader for a given file extension."

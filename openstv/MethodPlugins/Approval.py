@@ -14,8 +14,8 @@
 
 __revision__ = "$Id: Approval.py 715 2010-02-27 17:00:55Z jeff.oneill $"
 
-from openstv.STV import NonIterative
-from openstv.plugins import MethodPlugin
+from STV import NonIterative
+from plugins import MethodPlugin
 
 ##################################################################
 
@@ -45,7 +45,7 @@ makes no difference.</p>
     "Count the votes using approval voting."
 
     # Count the approvals
-    for i in xrange(self.b.numWeightedBallots):
+    for i in range(self.b.numWeightedBallots):
       weight, blt = self.b.getWeightedBallot(i)
       for j in blt:
         self.count[j] += weight

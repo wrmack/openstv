@@ -14,9 +14,9 @@
 
 __revision__ = "$Id: QPQ.py 715 2010-02-27 17:00:55Z jeff.oneill $"
 
-from openstv.STV import Iterative
-from openstv.plugins import MethodPlugin
-from openstv.qx import QX
+from STV import Iterative
+from plugins import MethodPlugin
+from qx import QX
 
 ##  Procedure (from Woodall paper http://www.votingmatters.org.uk/ISSUE17/I17P1.PDF)
 ##
@@ -196,7 +196,7 @@ that, like STV, meets the <i>Droop proportionality criterion</i>.</p>
 
     # Allocate ballots to candidates based on the first choices.
     self.b.contrib = []
-    for i in xrange(self.b.numWeightedBallots):
+    for i in range(self.b.numWeightedBallots):
       c = self.b.getTopChoiceFromWeightedBallot(i, self.continuing)
       if c is not None:
         self.votes[c].append(i)
@@ -221,7 +221,7 @@ that, like STV, meets the <i>Droop proportionality criterion</i>.</p>
     "Update quotients."
 
     # Count contribution of all ballots (will eventually subtract active contributions)
-    for i in xrange(self.b.numWeightedBallots):
+    for i in range(self.b.numWeightedBallots):
       self.tx[self.R] += self.b.contrib[i]
 
     # Count number (vc) and contribution (tc) of active ballots (ranking hopeful candidates);
