@@ -671,6 +671,7 @@ name below.""")
 
     # Buttons
     ok = wx.Button(self, wx.ID_OK)
+    #ok.SetBackgroundColour(wx.Colour(0,0,0,255))
     self.Bind(wx.EVT_BUTTON, self.OnOK, ok)
     cancel = wx.Button(self, wx.ID_CANCEL)
 
