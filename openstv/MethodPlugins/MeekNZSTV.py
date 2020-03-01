@@ -45,7 +45,7 @@ class MeekNZSTV(MeekSTV, MethodPlugin):
 
   methodName = "MeekNZ STV"
   longMethodName = "New Zealand Meek STV"
-  status = 2
+  status = 1
 
   htmlBody = """
 <p>This variation on Meek STV conforms to the New Zealand method as described here:
@@ -129,7 +129,7 @@ number generator for breaking ties.</p>
       #
       #  provisional: three methods for comparison
       #
-      method = "hill"
+      method = "nz"
       if method == "hill":
         # this appears to produce results consistent with David Hill's implementation
         # and (presumably) the NZ STV Calculator
@@ -144,7 +144,7 @@ number generator for breaking ties.</p>
         if rem > 0:
           keep += 1   # round up per clause 10
         self.count[self.R][c] += keep * tree[c]["n"]  # times ballot count
-        rrr, rem = divmod(rrr * (1 - self.keepFactor[self.R][c]), self.p)
+        rrr, rem = divmod(rrr * (self.p - self.keepFactor[self.R][c]), self.p)  # WM:  Was (1 - self.keepFactor... which gave a negative number
         if rem > 0:
           rrr += 1    # round up per clause 10
       else:
@@ -314,8 +314,10 @@ number generator for breaking ties.</p>
     while (not self.electionOver()):
       self.R += 1
       self.allocateRound()
-      self.eliminateCandidates()
-      self.transferSurplusVotes()
+      if self.isSurplusToTransfer():
+        self.transferSurplusVotes()
+      else:
+        self.eliminateCandidates()
       self.updateRound()
       self.describeRound()
 

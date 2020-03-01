@@ -387,7 +387,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
 
     # create a new notebook page
     tc = wx.TextCtrl(self.notebook, -1,
-                     style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.FIXED)
+                     style=wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL) # WM: Removed wm.FIXED
     tc.SetMaxLength(0)
     ps = tc.GetFont().GetPointSize()
     font = wx.Font(ps, wx.MODERN, wx.NORMAL, wx.NORMAL)
@@ -441,7 +441,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
       return
 
     dlg = wx.FileDialog(self, "Save Results in CSV Format",
-                        style=wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+                        style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR)
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -461,7 +461,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
       return
 
     dlg = wx.FileDialog(self, "Save Results in Text Format",
-                        style=wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+                        style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR)
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -485,7 +485,7 @@ to www.OpenSTV.org, or send an email to OpenSTV@googlegroups.com.
       return
 
     dlg = wx.FileDialog(self, "Save Results in HTML Format",
-                        style=wx.SAVE|wx.OVERWRITE_PROMPT|wx.CHANGE_DIR)
+                        style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR) # WM: added FD_ prefixes
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -650,7 +650,7 @@ See the Help menu for more information about the available methods.""")
 
   def OnFilenameSelect(self, event):
     dlg = wx.FileDialog(self, "Select Input File", "",
-                        style=wx.OPEN|wx.CHANGE_DIR)
+                        style=wx.FD_OPEN|wx.FD_CHANGE_DIR) # WM: added FD_ prefixes
     if dlg.ShowModal() != wx.ID_OK:
       dlg.Destroy()
       return
@@ -784,9 +784,11 @@ class ElectionOptionsDialog(wx.Dialog):
       optionsBox = wx.StaticBox(self, -1, "Method Options")
 
     for option in self.e.e.guiOptions:
-      exec(option[0])  # this defines label and control
-      labelList.append(label)
-      self.ctrlList.append(control)
+      cmds = option[0] + '\nlabelList.append(label)\nself.ctrlList.append(control)'  
+      exec(cmds)  # this defines label and control  
+      # WM: include append statements below in exec() above to avoid error messages saying label and control are undefined
+      #labelList.append(label)
+      #self.ctrlList.append(control)
       
     # Buttons
     ok = wx.Button(self, wx.ID_OK)

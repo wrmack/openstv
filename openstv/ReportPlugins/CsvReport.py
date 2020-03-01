@@ -131,12 +131,12 @@ class CsvReport(ReportPlugin):
         tl2 += ',"Surplus of",'
         surplus = [self.cleanB.names[c] for c in self.e.roundInfo[R]["action"][1]]
         surplus.sort()
-        tl3 += ',"' + string.join(surplus, '+') + '",'
+        tl3 += ',"' + '+'.join(surplus) + '",'  # WM: updated join method
       elif self.e.roundInfo[R]["action"][0] == "eliminate":
         tl2 += ',"Exclusion of",'
         eliminated = [self.cleanB.names[c] for c in self.e.roundInfo[R]["action"][1]]
         eliminated.sort()
-        tl3 += ',"' + string.join(eliminated, '+') + '",'
+        tl3 += ',"' + '+'.join(eliminated) + '",'  # WM: updated join method
       else:
         assert(0)
 

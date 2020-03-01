@@ -48,7 +48,7 @@ class TextReport(ReportPlugin):
   def printTableRow(self, values,width, nSubCol):
     """Print one 'line' of results--might occupy more than one line of text."""
     # Separator line
-    self.output( "=" * width + "\n" )
+    self.output( "=" * int(width) + "\n" )  # WM: made into integer
     line = values.pop(0)
     for (index,value) in enumerate(values):
       if ((index % nSubCol == 0) and index > 0): 
@@ -158,7 +158,7 @@ Counting votes for %s using %s.
     self.maxColWidth = max(self.maxColWidth, minColWidth)
 
   def setPrintField(self, cw):
-    self.prtf = "%" + str(cw) + "." + str(cw) + "s"  # %_._s
+    self.prtf = "%" + str(int(cw)) + "." + str(int(cw)) + "s"  # %_._s
 
   def generateMatrix(self, matrix):
     "Return a matrix in text format."
@@ -230,7 +230,7 @@ Matrix of beatpath magnitudes:
   def generateTextRoundResults(self, R, width, nSubCol):
     self.printTableRow( self.getValuesForRound( R ), width, nSubCol)
     ## Print message.
-    self.output( "  |" + "-" * (width-3) + "\n")
+    self.output( "  |" + "-" * int(width-3) + "\n")
     line = textwrap.fill(self.e.msg[R], initial_indent="  | ",
                          subsequent_indent="  | ", width=width)
     self.output( line + "\n" )
@@ -315,7 +315,7 @@ Matrix of beatpath magnitudes:
       maxNameLen = max(maxNameLen, len(self.cleanB.names[c]))
 
     # Pad strings for table header to a multiple of colWidth
-    maxNameLen += colWidth - (maxNameLen % colWidth)
+    maxNameLen += int(colWidth) - int(maxNameLen % colWidth) # WM: made integers
     header = []
     for c in range(self.cleanB.numCandidates):
       header.append(self.cleanB.names[c].ljust(maxNameLen))
@@ -337,25 +337,25 @@ Matrix of beatpath magnitudes:
 
     if self.style in ["full", "table"]:
       # Table header
-      for r in range(nRow):
-        for sr in range(nSubRow):
+      for r in range(int(nRow)):  # WM: made into integer
+        for sr in range(int(nSubRow)): # WM: made into integer
           line = ""
           if r == 0 and sr == 0:
             line += " R"
           else:
             line += "  "
-          b = sr*colWidth
-          e = b + colWidth
+          b = int(sr*colWidth) # WM: made into integer
+          e = int(b + colWidth) # WM: made into integer
 
-          for sc in range(nSubCol):
-            h = r*nSubCol + sc
+          for sc in range(int(nSubCol)):  # WM: made into integer
+            h = r*int(nSubCol) + sc # WM: made into integer
             if h == len(header): 
               break
             line += ( "|" + header[h][b:e] )
           out(line + "\n")
         
         if r < nRow-1:
-          out("  |" + ("-" * colWidth + "+" ) *(nSubCol-1) + "-" *colWidth + "\n")
+          out("  |" + ("-" * int(colWidth) + "+" ) * int(nSubCol-1) + "-" * int(colWidth) + "\n")  # WM: made into integer
         
       # Rounds
       for R in range(self.e.numRounds):

@@ -459,7 +459,7 @@ class Iterative(ElectionMethod):
   def newLosers(self, newLosersList):
     "Perform basic accounting when a new loser is found."
     
-    assert(newLosersList > 0)
+    # assert(len(newLosersList) > 0)  # WM: added len()
     for c in newLosersList:
       self.continuing.remove(c)
       self.losers.add(c)
