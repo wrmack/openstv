@@ -120,7 +120,7 @@ number generator for breaking ties.</p>
       remainder = self.p
 
     # Iterate over the next candidates on the ballots
-    for c in list(tree.keys()):
+    for c in tree:
       if c == "n" or c == "bi":
         continue
       rrr = remainder
@@ -225,6 +225,8 @@ number generator for breaking ties.</p>
       self.roundInfo[self.R]["action"] = ("eliminate", losers)
       descTrans = self.transferVotesFromCandidates(losers)
       self.roundInfo[self.R]["eliminate"] = descTrans + descChoose
+      self.updateTree(self.tree, self.losers)  # WM: added this (compare STV,RecursiveSTV.eliminateCandidates)
+      self.copyKeepFactors()     # WM: added this (compare STV,RecursiveSTV.eliminateCandidates)   
 
   def breakStrongTie(self, tiedC, what=""):
     "Break strong tie between candidates using Meek NZ PRNG per clauses 19 & 34"
@@ -261,7 +263,7 @@ number generator for breaking ties.</p>
     for c in candidateList:
       if self.count[self.R-1][c] > self.thresh[self.R-1]:
         # for testing, support both NZ and OpenSTV rounding
-        method = "nz"
+        method = ""
         if method == "nz":
           kf, rem = divmod(self.keepFactor[self.R-1][c] * self.thresh[self.R-1], self.p)
           if rem > 0:
